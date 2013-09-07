@@ -104,6 +104,21 @@ module Rack; module Throttle
       false
     end
 
+    ##
+    # Returns headers containing values following the X-RateLimit convention.
+    #
+    # @param [Rack::Request] request
+    # @param [Hash{String => String}] headers
+    # @return [Hash{String => String}]
+    def rate_limit_headers(request, headers)
+      count = cache_get(cache_key(request)).to_i rescue 1
+      remaining = [0, max_per_window - count].max
+
+      headers['X-RateLimit-Limit'] = max_per_window.to_s
+      headers['X-RateLimit-Remaining'] = remaining.to_s
+      headers
+    end
+
     protected
 
     ##
