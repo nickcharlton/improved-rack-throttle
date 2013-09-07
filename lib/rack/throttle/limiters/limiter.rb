@@ -40,7 +40,9 @@ module Rack; module Throttle
       if applicable and !allowed?(request)
         rate_limit_exceeded
       else
-        app.call(env)
+        status, headers, body = app.call(env)
+        headers = rate_limit_headers(request, headers)
+        [status, headers, body]
       end
     end
 
